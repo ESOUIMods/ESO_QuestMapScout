@@ -15,7 +15,7 @@ local reward
 local lastZone
 -- Init saved variables table
 if QM_Scout == nil then QM_Scout = {startTime=GetTimeStamp()} end
-
+local GPS = LibGPS2
 
 -- Get zone and subzone in a single string (e.g. "stonefalls/balfoyen_base")
 local function GetZoneAndSubzone()
@@ -39,10 +39,13 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
     local zone = GetZoneAndSubzone()
     if QM_Scout.quests[zone] == nil then QM_Scout.quests[zone] = {} end
     local normalizedX, normalizedY = GetMapPlayerPosition("player")
+    local gpsx, gpsy, zoneMapIndex = GPS:LocalToGlobal(normalizedX, normalizedY)
     local quest = {
             ["name"]      = questName,
             ["x"]         = normalizedX,
             ["y"]         = normalizedY,
+            ["gpsx"]         = gpsX,
+            ["pgsy"]         = gpsY,
             ["giver"]     = questGiverName,
             ["preQuest"]  = preQuest,  -- Save it here (instead of in questInfo) because the quest (not preQuest) only has a name and not unique ID
             ["otherInfo"] = {
@@ -116,9 +119,16 @@ local function OnPlayerActivated(eventCode)
         if QM_Scout.subZones[zone][lastZone] == nil then
             -- Save entrance position
             local x, y = GetMapPlayerPosition("player")
+            gpsx, gpsy, zoneMapIndex = GPS:LocalToGlobal(x, y)
             QM_Scout.subZones[zone][lastZone] = {
-                    ["y"] = x,
-                    ["x"] = y,
+                    -- previously this was reversed ?? GetMapPlayerPosition
+                    -- won't reverse that ??
+                    -- ["y"] = x,
+                    -- ["x"] = y,
+                    ["x"] = x,
+                    ["y"] = y,
+                    ["gpsx"] = x,
+                    ["gpsy"] = y,
                 }
         end
     end
