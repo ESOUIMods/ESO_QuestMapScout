@@ -16,15 +16,11 @@ local lastZone
 -- Init saved variables table
 if QM_Scout == nil then QM_Scout = {startTime=GetTimeStamp()} end
 local GPS = LibGPS2
-
--- Get zone and subzone in a single string (e.g. "stonefalls/balfoyen_base")
-local function GetZoneAndSubzone()
-    return select(3,(GetMapTileTexture()):lower():find("maps/([%w%-]+/[%w%-]+_[%w%-]+)"))
-end
+local LMP = LibMapPins
 
 -- Check if zone is base zone
 local function IsBaseZone(zoneAndSubzone)
-    return (zoneAndSubzone:match("(.*)/") == zoneAndSubzone:match("/(.*)_base"))
+    return (zoneAndSubzone:match("(.*)/") == zoneAndSubzone:match("/(.*)[%._]base"))
 end
 
 -- Check if both subzones are in the same zone
@@ -36,7 +32,7 @@ end
 local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
     -- Add quest to saved variables table in correct zone element
     if QM_Scout.quests == nil then QM_Scout.quests = {} end
-    local zone = GetZoneAndSubzone()
+    local zone = LMP:GetZoneAndSubzone(true)
     if QM_Scout.quests[zone] == nil then QM_Scout.quests[zone] = {} end
     local normalizedX, normalizedY = GetMapPlayerPosition("player")
     local gpsx, gpsy, zoneMapIndex = GPS:LocalToGlobal(normalizedX, normalizedY)
@@ -44,8 +40,8 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
             ["name"]      = questName,
             ["x"]         = normalizedX,
             ["y"]         = normalizedY,
-            ["gpsx"]         = gpsX,
-            ["pgsy"]         = gpsY,
+            ["gpsx"]         = gpsx,
+            ["gpsy"]         = gpsy,
             ["giver"]     = questGiverName,
             ["preQuest"]  = preQuest,  -- Save it here (instead of in questInfo) because the quest (not preQuest) only has a name and not unique ID
             ["otherInfo"] = {
@@ -105,13 +101,13 @@ EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_REMOVED, OnQuestRemoved)
 
 -- Event handler function for EVENT_PLAYER_DEACTIVATED
 local function OnPlayerDeactivated(eventCode)
-    lastZone = GetZoneAndSubzone()
+    lastZone = LMP:GetZoneAndSubzone(true)
 end
 EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_PLAYER_DEACTIVATED, OnPlayerDeactivated)
 
 -- Event handler function for EVENT_PLAYER_ACTIVATED
 local function OnPlayerActivated(eventCode)
-    local zone = GetZoneAndSubzone()
+    local zone = LMP:GetZoneAndSubzone(true)
     -- Check if leaving subzone (entering base zone)
     if lastZone and zone ~= lastZone and IsBaseZone(zone) and IsSameZone(zone, lastZone) then
         if QM_Scout.subZones == nil then QM_Scout.subZones = {} end
