@@ -4,7 +4,7 @@
 ## APIVersion: 100026
 ## Description: Collects data for improving the add-on "Quest Map"
 ## SavedVariables: QM_Scout
-## DependsOn: LibGPS
+## DependsOn: LibGPS LibMapPins
 
 QuestMapScout.lua
 
