@@ -50,7 +50,9 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
                     ["lang"]      = GetCVar("language.2")
                 },
         }
-    table.insert(QM_Scout.quests[zone], quest)
+    if not string.find(string.lower(questGiverName), "crafting writ") then
+        table.insert(QM_Scout.quests[zone], quest)
+    end
 end
 
 -- Event handler function for EVENT_CHATTER_END
