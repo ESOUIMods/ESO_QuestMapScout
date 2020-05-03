@@ -44,7 +44,7 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
     if QM_Scout.quests[zone] == nil then QM_Scout.quests[zone] = {} end
     local normalizedX, normalizedY = GetMapPlayerPosition("player")
     local gpsx, gpsy, zoneMapIndex = GPS:LocalToGlobal(normalizedX, normalizedY)
-    measurement = GPS:GetCurrentMapMeasurement()
+    local measurement = GPS:GetCurrentMapMeasurements()
     local quest = {
             ["name"]      = questName,
             ["x"]         = normalizedX,
@@ -56,22 +56,21 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
             ["otherInfo"] = {
                     ["time"]            = GetTimeStamp(),
                     ["api"]             = GetAPIVersion(),
-                    ["lang"]            = GetCVar("language.2")
-                    ["zoneMapIndex"]    = zoneMapIndex,
+                    ["lang"]            = GetCVar("language.2"),
                     ["measurement"]     = measurement,
                 },
         }
     if not string.find(string.lower(questGiverName), "crafting writ") then
         if QuestMap then
             local quest_not_found = true
-            QuestMap_zonelist = QuestMap:GetQuestList(zone)
+            local QuestMap_zonelist = QuestMap:GetQuestList(zone)
             for num_entry, quest_from_table in pairs(QuestMap_zonelist) do
                 local quest_map_questname = QuestMap:GetQuestName(quest_from_table.id)
                 if quest_map_questname == questName then
                     quest_not_found = false
                 end
             end
-            QuestScout_zonelist = GetQuestList(zone)
+            local QuestScout_zonelist = GetQuestList(zone)
             for num_entry, quest_from_table in pairs(QuestScout_zonelist) do
                 if quest_from_table.name == questName then
                     quest_not_found = false
@@ -148,8 +147,8 @@ local function OnPlayerActivated(eventCode)
         if QM_Scout.subZones[zone][lastZone] == nil then
             -- Save entrance position
             local x, y = GetMapPlayerPosition("player")
-            gpsx, gpsy, gpsm = GPS:LocalToGlobal(x, y)
-            measurement = GPS:GetCurrentMapMeasurement()
+            local gpsx, gpsy, gpsm = GPS:LocalToGlobal(x, y)
+            local measurement = GPS:GetCurrentMapMeasurements()
             QM_Scout.subZones[zone][lastZone] = {
                     -- previously this was reversed ?? GetMapPlayerPosition
                     -- won't reverse that ??
@@ -159,7 +158,6 @@ local function OnPlayerActivated(eventCode)
                     ["y"] = y,
                     ["gpsx"] = gpsx,
                     ["gpsy"] = gpsy,
-                    ["gpsm"] = gpsm,
                     ["measurement"] = measurement,
                 }
         end
