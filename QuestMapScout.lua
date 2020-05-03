@@ -44,18 +44,21 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
     if QM_Scout.quests[zone] == nil then QM_Scout.quests[zone] = {} end
     local normalizedX, normalizedY = GetMapPlayerPosition("player")
     local gpsx, gpsy, zoneMapIndex = GPS:LocalToGlobal(normalizedX, normalizedY)
+    measurement = GPS:GetCurrentMapMeasurement()
     local quest = {
             ["name"]      = questName,
             ["x"]         = normalizedX,
             ["y"]         = normalizedY,
-            ["gpsx"]         = gpsx,
-            ["gpsy"]         = gpsy,
+            ["gpsx"]      = gpsx,
+            ["gpsy"]      = gpsy,
             ["giver"]     = questGiverName,
             ["preQuest"]  = preQuest,  -- Save it here (instead of in questInfo) because the quest (not preQuest) only has a name and not unique ID
             ["otherInfo"] = {
-                    ["time"]      = GetTimeStamp(),
-                    ["api"]       = GetAPIVersion(),
-                    ["lang"]      = GetCVar("language.2")
+                    ["time"]            = GetTimeStamp(),
+                    ["api"]             = GetAPIVersion(),
+                    ["lang"]            = GetCVar("language.2")
+                    ["zoneMapIndex"]    = zoneMapIndex,
+                    ["measurement"]     = measurement,
                 },
         }
     if not string.find(string.lower(questGiverName), "crafting writ") then
