@@ -28,6 +28,14 @@ local function IsSameZone(zoneAndSubzone1, zoneAndSubzone2)
     return (zoneAndSubzone1:match("(.*)/") == zoneAndSubzone2:match("(.*)/"))
 end
 
+function GetQuestList(zone)
+    if type(zone) == "string" and QM_Scout.quests[zone] ~= nil then
+        return QM_Scout.quests[zone]
+    else
+        return {}
+    end
+end
+
 -- Event handler function for EVENT_QUEST_ADDED
 local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
     -- Add quest to saved variables table in correct zone element
@@ -51,7 +59,27 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
                 },
         }
     if not string.find(string.lower(questGiverName), "crafting writ") then
-        table.insert(QM_Scout.quests[zone], quest)
+        if QuestMap then
+            local quest_not_found = true
+            QuestMap_zonelist = QuestMap:GetQuestList(zone)
+            for num_entry, quest_from_table in pairs(QuestMap_zonelist) do
+                local quest_map_questname = QuestMap:GetQuestName(quest_from_table.id)
+                if quest_map_questname == questName then
+                    quest_not_found = false
+                end
+            end
+            QuestScout_zonelist = GetQuestList(zone)
+            for num_entry, quest_from_table in pairs(QuestScout_zonelist) do
+                if quest_from_table.name == questName then
+                    quest_not_found = false
+                end
+            end
+            if quest_not_found then 
+                table.insert(QM_Scout.quests[zone], quest)
+            end
+        else
+            table.insert(QM_Scout.quests[zone], quest)
+        end
     end
 end
 
@@ -117,7 +145,8 @@ local function OnPlayerActivated(eventCode)
         if QM_Scout.subZones[zone][lastZone] == nil then
             -- Save entrance position
             local x, y = GetMapPlayerPosition("player")
-            gpsx, gpsy, zoneMapIndex = GPS:LocalToGlobal(x, y)
+            gpsx, gpsy, gpsm = GPS:LocalToGlobal(x, y)
+            measurement = GPS:GetCurrentMapMeasurement()
             QM_Scout.subZones[zone][lastZone] = {
                     -- previously this was reversed ?? GetMapPlayerPosition
                     -- won't reverse that ??
@@ -125,8 +154,10 @@ local function OnPlayerActivated(eventCode)
                     -- ["x"] = y,
                     ["x"] = x,
                     ["y"] = y,
-                    ["gpsx"] = x,
-                    ["gpsy"] = y,
+                    ["gpsx"] = gpsx,
+                    ["gpsy"] = gpsy,
+                    ["gpsm"] = gpsm,
+                    ["measurement"] = measurement,
                 }
         end
     end
