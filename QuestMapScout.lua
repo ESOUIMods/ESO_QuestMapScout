@@ -10,7 +10,6 @@ https://github.com/CaptainBlagbird
 local AddonName = "QuestMapScout"
 -- Local variables
 local questGiverName
-local preQuest
 local reward
 local lastZone
 -- Init saved variables table
@@ -52,7 +51,6 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
             ["gpsx"]      = gpsx,
             ["gpsy"]      = gpsy,
             ["giver"]     = questGiverName,
-            ["preQuest"]  = preQuest,  -- Save it here (instead of in questInfo) because the quest (not preQuest) only has a name and not unique ID
             ["otherInfo"] = {
                     ["time"]            = GetTimeStamp(),
                     ["api"]             = GetAPIVersion(),
@@ -87,7 +85,6 @@ end
 
 -- Event handler function for EVENT_CHATTER_END
 local function OnChatterEnd(eventCode)
-    preQuest = nil
     reward = nil
     -- Stop listening for the quest added event because it would only be for shared quests
     EVENT_MANAGER:UnregisterForEvent(AddonName, EVENT_QUEST_ADDED)
@@ -120,8 +117,6 @@ EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_COMPLETE_DIALOG, OnQuestCo
 -- Event handler function for EVENT_QUEST_REMOVED
 local function OnQuestRemoved(eventCode, isCompleted, journalIndex, questName, zoneIndex, poiIndex, questID)
     if not isCompleted then return end
-    -- Remember prerequisite quest id
-    preQuest = questID
     -- Save quest repeat and reward type
     if not QM_Scout.questInfo then QM_Scout.questInfo = {} end
     if not QM_Scout.questInfo[questID] then QM_Scout.questInfo[questID] = {} end
