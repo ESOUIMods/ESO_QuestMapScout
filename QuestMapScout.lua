@@ -62,8 +62,8 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
         repeat_type = GetJournalQuestRepeatType(journalIndex)
     end
     local quest = {
-        ["quest_type"]  = quest_type
-        ["repeat_type"] = repeat_type
+        ["quest_type"]  = quest_type,
+        ["repeat_type"] = repeat_type,
         ["name"]        = questName,
         ["x"]           = normalizedX,
         ["y"]           = normalizedY,
