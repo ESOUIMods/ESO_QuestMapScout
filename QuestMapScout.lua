@@ -48,7 +48,6 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
     local quest_id = -1
     -- -1 means it has not been completed. Once complete set it to the time stamp
     -- I am considering using this to see if I can calculate order for Zone quests
-    local time_completed = -1
 
     -- Add quest to saved variables table in correct zone element
     if QM_Scout.quests == nil then QM_Scout.quests = {} end
@@ -72,7 +71,6 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
         ["giver"]       = questGiverName,
         ["questID"]     = quest_id, -- assign this and get the ID when the quest is removed
         ["otherInfo"] = {
-            ["time_completed"]  = time_completed,
             ["api"]             = GetAPIVersion(),
             ["lang"]            = GetCVar("language.2"),
             ["measurement"]     = measurement,
@@ -168,8 +166,6 @@ local function OnQuestRemoved(eventCode, isCompleted, journalIndex, questName, z
     end
 
     if isCompleted then
-        quest_to_update["otherInfo"].time_completed = GetTimeStamp()
-
         if not QM_Scout.questInfo then QM_Scout.questInfo = {} end
         if not QM_Scout.questInfo[questID] then QM_Scout.questInfo[questID] = {} end
         QM_Scout.questInfo[questID].repeatType = GetJournalQuestRepeatType(journalIndex)
