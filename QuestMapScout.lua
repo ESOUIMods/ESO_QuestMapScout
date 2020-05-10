@@ -62,8 +62,8 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
         repeat_type = GetJournalQuestRepeatType(journalIndex)
     end
     local quest = {
-        ["quest_type"]  = GetJournalQuestType(journalIndex),
-        ["repeat_type"] = GetJournalQuestRepeatType(journalIndex),
+        ["quest_type"]  = quest_type
+        ["repeat_type"] = repeat_type
         ["name"]        = questName,
         ["x"]           = normalizedX,
         ["y"]           = normalizedY,
@@ -189,9 +189,8 @@ function show_quests()
     for zone, zone_quests in pairs(QM_Scout.quests) do
         d("zone: "..zone)
         for num_entry, quest_from_table in pairs(zone_quests) do
-            d("Quest From Table Name: "..quest_from_table.name)
             quest_to_update = quest_from_table
-            d("Quest To Update Name: "..quest_to_update.name)
+            d("Quest Name: "..quest_to_update.name)
         end
     end
 end
