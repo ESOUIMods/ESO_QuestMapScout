@@ -38,6 +38,8 @@ end
 
 -- Event handler function for EVENT_QUEST_ADDED
 local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
+    if string.find(string.lower(questName), "writ") then return end
+    -- d("OnQuestAdded")
     if quest_shared then
         quest_shared = false
         return
@@ -77,34 +79,33 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
         },
     }
 
-    if not string.find(string.lower(questGiverName), "crafting writ") then
-        if QuestMap then
-            local quest_not_found = true
-            local QuestMap_zonelist = QuestMap:GetQuestList(zone)
-            for num_entry, quest_from_table in pairs(QuestMap_zonelist) do
-                local quest_map_questname = QuestMap:GetQuestName(quest_from_table.id)
-                if quest_map_questname == questName then
-                    quest_not_found = false
-                end
+    if QuestMap then
+        local quest_not_found = true
+        local QuestMap_zonelist = QuestMap:GetQuestList(zone)
+        for num_entry, quest_from_table in pairs(QuestMap_zonelist) do
+            local quest_map_questname = QuestMap:GetQuestName(quest_from_table.id)
+            if quest_map_questname == questName then
+                quest_not_found = false
             end
-            local QuestScout_zonelist = GetQuestList(zone)
-            for num_entry, quest_from_table in pairs(QuestScout_zonelist) do
-                if quest_from_table.name == questName then
-                    quest_not_found = false
-                end
+        end
+        local QuestScout_zonelist = GetQuestList(zone)
+        for num_entry, quest_from_table in pairs(QuestScout_zonelist) do
+            if quest_from_table.name == questName then
+                quest_not_found = false
             end
-            if quest_not_found then
-                table.insert(QM_Scout.quests[zone], quest)
-            end
-        else
+        end
+        if quest_not_found then
             table.insert(QM_Scout.quests[zone], quest)
         end
+    else
+        table.insert(QM_Scout.quests[zone], quest)
     end
 end
 EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_ADDED, OnQuestAdded) -- Verified
 
 -- Event handler function for EVENT_CHATTER_END
 local function OnChatterEnd(eventCode)
+    -- d("OnChatterEnd")
     reward = nil
     -- Stop listening for the quest added event because it would only be for shared quests
     -- Shar I added if EVENT_QUEST_SHARED to OnQuestAdded UnregisterForEvent EVENT_QUEST_ADDED
@@ -113,11 +114,13 @@ local function OnChatterEnd(eventCode)
 end
 
 local function OnQuestSharred(eventCode, questID)
+    -- d("OnQuestSharred")
     quest_shared = true
 end
 EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_SHARED, OnQuestSharred) -- Verified
 
 -- Event handler function for EVENT_QUEST_OFFERED
+-- Note runs when you click writ board
 local function OnQuestOffered(eventCode)
     -- Get the name of the NPC or intractable object
     -- (This could also be done in OnQuestAdded directly, but it's saver here because we are sure the dialogue is open)
@@ -131,6 +134,7 @@ EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_OFFERED, OnQuestOffered) -
 
 -- Event handler function for EVENT_QUEST_COMPLETE_DIALOG
 local function OnQuestCompleteDialog(eventCode, journalIndex)
+    -- d("OnQuestCompleteDialog")
     local numRewards = GetJournalQuestNumRewards(journalIndex)
     if numRewards <= 0 then return end
     reward = {}
@@ -143,6 +147,9 @@ EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_COMPLETE_DIALOG, OnQuestCo
 
 -- Event handler function for EVENT_QUEST_REMOVED
 local function OnQuestRemoved(eventCode, isCompleted, journalIndex, questName, zoneIndex, poiIndex, questID)
+    if string.find(string.lower(questName), "writ") then return end
+    -- d(questName)
+    -- d("OnQuestRemoved")
     local quest_to_update = {}
 
     for zone, zone_quests in pairs(QM_Scout["quests"]) do
@@ -160,6 +167,16 @@ local function OnQuestRemoved(eventCode, isCompleted, journalIndex, questName, z
     if quest_to_update == nil then
         return
     end
+
+    -- clean up old vars, remove them
+    if quest_to_update["preQuest"] then quest_to_update["preQuest"] = nil end
+    if quest_to_update["otherInfo"].time then quest_to_update["otherInfo"].time = nil end
+    if quest_to_update["otherInfo"].time_completed then quest_to_update["otherInfo"].time_completed = nil end
+
+    -- clean up, add new vars if not present
+    if quest_to_update["quest_type"] == nil then quest_to_update["quest_type"] = -1 end
+    if quest_to_update["repeat_type"] == nil then quest_to_update["repeat_type"] = -1 end
+    if quest_to_update["questID"] == nil then quest_to_update["questID"] = -1 end
 
     if quest_to_update.questID == -1 then
         quest_to_update.questID = questID
