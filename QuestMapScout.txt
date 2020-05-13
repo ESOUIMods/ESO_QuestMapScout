@@ -1,6 +1,6 @@
-## Title: Quest Map Scout v1.0.16
-## Version: 1.0.16
-## AddOnVersion: 1016
+## Title: Quest Map Scout v1.0.19
+## Version: 1.0.19
+## AddOnVersion: 1019
 ## Author: CaptainBlagbird, Sharlikran
 ## APIVersion: 100030 100031
 ## Description: Collects data for improving the add-on "Quest Map"

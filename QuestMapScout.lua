@@ -9,7 +9,7 @@ https://github.com/CaptainBlagbird
 -- Addon info
 local AddonName = "QuestMapScout"
 -- Local variables
-local questGiverName
+local questGiverName = nil
 local reward
 local lastZone
 -- Init saved variables table
@@ -106,6 +106,7 @@ EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_ADDED, OnQuestAdded) -- Ve
 -- Event handler function for EVENT_CHATTER_END
 local function OnChatterEnd(eventCode)
     -- d("OnChatterEnd")
+    questGiverName = nil
     reward = nil
     -- Stop listening for the quest added event because it would only be for shared quests
     -- Shar I added if EVENT_QUEST_SHARED to OnQuestAdded UnregisterForEvent EVENT_QUEST_ADDED
@@ -122,6 +123,7 @@ EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_SHARED, OnQuestSharred) --
 -- Event handler function for EVENT_QUEST_OFFERED
 -- Note runs when you click writ board
 local function OnQuestOffered(eventCode)
+    -- d("OnQuestOffered")
     -- Get the name of the NPC or intractable object
     -- (This could also be done in OnQuestAdded directly, but it's saver here because we are sure the dialogue is open)
     questGiverName = GetUnitName("interact")
@@ -150,7 +152,7 @@ local function OnQuestRemoved(eventCode, isCompleted, journalIndex, questName, z
     if string.find(string.lower(questName), "writ") then return end
     -- d(questName)
     -- d("OnQuestRemoved")
-    local quest_to_update = {}
+    local quest_to_update = nil
 
     for zone, zone_quests in pairs(QM_Scout["quests"]) do
         for num_entry, quest_from_table in pairs(zone_quests) do
@@ -170,7 +172,7 @@ local function OnQuestRemoved(eventCode, isCompleted, journalIndex, questName, z
 
     -- clean up old vars, remove them
     if quest_to_update["preQuest"] then quest_to_update["preQuest"] = nil end
-    if quest_to_update["otherInfo"].time then quest_to_update["otherInfo"].time = nil end
+    if quest_to_update["otherInfo"]["time"] then quest_to_update["otherInfo"]["time"] = nil end
     if quest_to_update["otherInfo"].time_completed then quest_to_update["otherInfo"].time_completed = nil end
 
     -- clean up, add new vars if not present
