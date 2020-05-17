@@ -53,7 +53,7 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
 
     -- Add quest to saved variables table in correct zone element
     if QM_Scout.quests == nil then QM_Scout.quests = {} end
-    local zone = LMP:GetZoneAndSubzone(true)
+    local zone = LMP:GetZoneAndSubzone(true, false, true)
     if QM_Scout.quests[zone] == nil then QM_Scout.quests[zone] = {} end
     local normalizedX, normalizedY = GetMapPlayerPosition("player")
     local gpsx, gpsy, zoneMapIndex = GPS:LocalToGlobal(normalizedX, normalizedY)
@@ -79,11 +79,12 @@ local function OnQuestAdded(eventCode, journalIndex, questName, objectiveName)
         },
     }
 
-    if QuestMap then
+    if LibQuestInfo then
+        LQI = LibQuestInfo
         local quest_not_found = true
-        local QuestMap_zonelist = QuestMap:GetQuestList(zone)
+        local QuestMap_zonelist = LQI:get_quest_list(zone)
         for num_entry, quest_from_table in pairs(QuestMap_zonelist) do
-            local quest_map_questname = QuestMap:GetQuestName(quest_from_table.id)
+            local quest_map_questname = LQI:get_quest_name(quest_from_table.id)
             if quest_map_questname == questName then
                 quest_not_found = false
             end
@@ -196,7 +197,7 @@ EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_QUEST_REMOVED, OnQuestRemoved) -
 
 -- Event handler function for EVENT_PLAYER_DEACTIVATED
 local function OnPlayerDeactivated(eventCode)
-    lastZone = LMP:GetZoneAndSubzone(true)
+    lastZone = LMP:GetZoneAndSubzone(true, false, true)
 end
 EVENT_MANAGER:RegisterForEvent(AddonName, EVENT_PLAYER_DEACTIVATED, OnPlayerDeactivated) -- Verified
 
@@ -212,7 +213,7 @@ end
 
 -- Event handler function for EVENT_PLAYER_ACTIVATED
 local function OnPlayerActivated(eventCode)
-    local zone = LMP:GetZoneAndSubzone(true)
+    local zone = LMP:GetZoneAndSubzone(true, false, true)
     -- Check if leaving subzone (entering base zone)
     if lastZone and zone ~= lastZone and IsBaseZone(zone) and IsSameZone(zone, lastZone) then
         if QM_Scout.subZones == nil then QM_Scout.subZones = {} end
