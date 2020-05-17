@@ -1,11 +1,12 @@
-## Title: Quest Map Scout v1.0.19
-## Version: 1.0.19
-## AddOnVersion: 1019
+## Title: Quest Map Scout v1.0.20
+## Version: 1.0.20
+## AddOnVersion: 1020
 ## Author: CaptainBlagbird, Sharlikran
 ## APIVersion: 100030 100031
 ## Description: Collects data for improving the add-on "Quest Map"
 ## SavedVariables: QM_Scout
 ## DependsOn: LibGPS LibMapPins-1.0
+## OptionalDependsOn: LibQuestInfo
 
 QuestMapScout.lua
 
